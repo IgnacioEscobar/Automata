@@ -1,18 +1,27 @@
 #include <stdio.h>
-
+#include <stdlib.h>
+//Nodo de resolucion
+struct nodo{
+    float valor;
+    struct nodo* padreDePista;
+    struct nodo* padreDeOperacion; 
+    struct nodo* hijoDePista;
+    struct nodo* hijoDeOperacion;
+};
 //Variables de automata
 int caracter, operacion = '+';
 int centinelaNegatividad = 0;
 float valorAcumulado = 0;
 //Prototipos
-void automata       ();
-void inicial        ();
-void negativo       ();
-void construirDigito(int caracter);
-void operar         (int caracter);
-void rechazo        ();
-void aceptacion     ();
-void crearNodo      (int operacion,float valor);
+void automata          ();
+void inicial           ();
+void negativo          ();
+void construirDigito   (int caracter);
+void operar            (int caracter);
+void rechazo           ();
+void aceptacion        ();
+void crearNodo         (int operacion,float valor);
+struct nodo* nuevoNodo (float x);
 
 int main(){
     automata();
@@ -81,4 +90,56 @@ void aceptacion(){
     printf("Resultado: ...\n");
 }
 
-void crearNodo(int operacion,float valor){};
+//Resolucion
+struct nodo* trackDeSuma           = NULL;
+struct nodo* trackDeMultiplicacion = NULL;
+struct nodo* trackDeDivision       = NULL;
+struct nodo* punteroDeOperacion    = NULL;
+struct nodo* nodoTemp              = NULL;
+
+void crearNodo(int operacion,float valor){
+    nodoTemp = nuevoNodo(valor);
+    if (operacion == '+'){
+        nodoTemp -> padreDePista = trackDeSuma;
+        if (trackDeSuma == NULL){
+            trackDeSuma = nodoTemp;
+        }else{
+            trackDeSuma -> hijoDePista = nodoTemp;
+        }
+    };
+    if (operacion == '*'){
+        nodoTemp -> padreDePista = trackDeMultiplicacion;
+        if (trackDeSuma == NULL){
+            trackDeMultiplicacion = nodoTemp;
+        }else{
+            trackDeMultiplicacion -> hijoDePista = nodoTemp;
+        }
+
+    };
+    if (operacion == '/'){
+        nodoTemp -> padreDePista = trackDeDivision;
+        if (trackDeSuma == NULL){
+            trackDeDivision = nodoTemp;
+        }else{
+            trackDeDivision -> hijoDePista = nodoTemp;
+        }        
+    };
+    //if (operacion = "-"){printf("Error");};
+    nodoTemp -> padreDeOperacion = punteroDeOperacion;
+    if (punteroDeOperacion == NULL){
+        punteroDeOperacion = nodoTemp;
+    }else{
+        punteroDeOperacion -> hijoDeOperacion = nodoTemp;
+    }
+    
+};
+
+struct nodo* nuevoNodo(float x){
+    struct nodo* nuevoNodo = (struct nodo*)malloc(sizeof(struct nodo));
+    nuevoNodo -> valor            = x;
+    nuevoNodo -> padreDePista     = NULL;
+    nuevoNodo -> padreDeOperacion = NULL; 
+    nuevoNodo -> hijoDePista      = NULL;
+    nuevoNodo -> hijoDeOperacion  = NULL;
+    return nuevoNodo;
+}
