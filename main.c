@@ -20,6 +20,7 @@ void rechazo           ();
 void aceptacion        ();
 void crearNodo         (int operacion,float valor);
 struct nodo* nuevoNodo (float x);
+void resolver();
 
 int main(){
     automata();
@@ -30,7 +31,6 @@ void automata(){
     printf("Ingresar expresion: ");
     inicial();
 }
-
 
 //Estado 0 - Estado inicial
 void inicial(){
@@ -85,7 +85,7 @@ void rechazo(){
     printf("No se reconoce la cadena\n");
 }
 void aceptacion(){
-	resolver();
+    resolver();
     printf("Resultado: ...\n");
 }
 
@@ -102,30 +102,29 @@ struct nodo* nodoTemp               = NULL;
 void crearNodo(int operacion,float valor){
     nodoTemp = nuevoNodo(valor);
     if (operacion == '+'){
-        if (trackDeSuma == NULL){
+        if (frenteDeSuma == NULL){
             frenteDeSuma = nodoTemp;
         }else{
             fondoDeSuma -> hijo = nodoTemp;
-            fondoDeSuma = nodoTemp
+            fondoDeSuma = nodoTemp;
         }
     };
     if (operacion == '*'){
-        if (trackDeMultiplicacion == NULL){
+        if (frenteDeMultiplicacion == NULL){
             frenteDeMultiplicacion = nodoTemp;
         }else{
             fondoDeMultiplicacion -> hijo = nodoTemp;
-            fondoDeMultiplicacion = nodoTemp
+            fondoDeMultiplicacion = nodoTemp;
         }
     };
     if (operacion == '/'){
-        if (trackDeDivision == NULL){
+        if (frenteDeDivision == NULL){
             frenteDeDivision = nodoTemp;
         }else{
             fondoDeDivision -> hijo = nodoTemp;
-            fondoDeDivision = nodoTemp
+            fondoDeDivision = nodoTemp;
         }
     };
-    /////////////////////////////////////////
     nodoTemp -> padre = punteroDeOperacion;
     if (punteroDeOperacion == NULL){
         punteroDeOperacion = nodoTemp;
@@ -134,16 +133,37 @@ void crearNodo(int operacion,float valor){
 
 struct nodo* nuevoNodo(float x){
     struct nodo* nuevoNodo = (struct nodo*)malloc(sizeof(struct nodo));
-    nuevoNodo -> valor            = x;
-    nuevoNodo -> padreDePista     = NULL;
-    nuevoNodo -> padreDeOperacion = NULL; 
-    nuevoNodo -> hijoDePista      = NULL;
-    nuevoNodo -> hijoDeOperacion  = NULL;
+    nuevoNodo -> valor = x;
+    nuevoNodo -> padre = NULL; 
+    nuevoNodo -> hijo  = NULL;
     return nuevoNodo;
 }
  
- /*void resolver(){
- 	iterador = trackDeMultiplicacion;
- 	while(iterador == NULL){
- 	}
- }
+void resolver(){
+    struct nodo* iterador = frenteDeMultiplicacion;
+    struct nodo* temporal;
+    float  resultado;
+    while(iterador != NULL){
+        iterador -> padre -> valor = (iterador -> padre -> valor)*(iterador -> valor); 
+        iterador -> hijo -> padre  =  iterador -> padre;
+        temporal = iterador;
+        iterador = iterador -> hijo;
+        free(temporal);
+    }
+    iterador = frenteDeDivision;
+    while(iterador != NULL){
+        iterador -> padre -> valor = (iterador -> padre -> valor)/(iterador -> valor); 
+        iterador -> hijo -> padre  =  iterador -> padre;
+        temporal = iterador;
+        iterador = iterador -> hijo;
+        free(temporal);
+    }
+    iterador = frenteDeSuma;
+    while(iterador != NULL){
+        // iterador -> padre -> valor = (iterador -> padre -> valor)+(iterador -> valor); 
+        // iterador -> hijo -> padre  =  iterador -> padre;
+        // temporal = iterador;
+        // iterador = iterador -> hijo;
+        // free(temporal);
+    }
+}
