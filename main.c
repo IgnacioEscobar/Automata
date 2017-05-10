@@ -3,10 +3,8 @@
 //Nodo de resolucion
 struct nodo{
     float valor;
-    struct nodo* padreDePista;
-    struct nodo* padreDeOperacion; 
-    struct nodo* hijoDePista;
-    struct nodo* hijoDeOperacion;
+    struct nodo* padre; 
+    struct nodo* hijo;
 };
 //Variables de automata
 int caracter, operacion = '+';
@@ -87,51 +85,51 @@ void rechazo(){
     printf("No se reconoce la cadena\n");
 }
 void aceptacion(){
+	resolver();
     printf("Resultado: ...\n");
 }
 
 //Resolucion
-struct nodo* trackDeSuma           = NULL;
-struct nodo* trackDeMultiplicacion = NULL;
-struct nodo* trackDeDivision       = NULL;
-struct nodo* punteroDeOperacion    = NULL;
-struct nodo* nodoTemp              = NULL;
+struct nodo* frenteDeSuma           = NULL;
+struct nodo* fondoDeSuma            = NULL;
+struct nodo* frenteDeMultiplicacion = NULL;
+struct nodo* fondoDeMultiplicacion  = NULL;
+struct nodo* frenteDeDivision       = NULL;
+struct nodo* fondoDeDivision        = NULL;
+struct nodo* punteroDeOperacion     = NULL;
+struct nodo* nodoTemp               = NULL;
 
 void crearNodo(int operacion,float valor){
     nodoTemp = nuevoNodo(valor);
     if (operacion == '+'){
-        nodoTemp -> padreDePista = trackDeSuma;
         if (trackDeSuma == NULL){
-            trackDeSuma = nodoTemp;
+            frenteDeSuma = nodoTemp;
         }else{
-            trackDeSuma -> hijoDePista = nodoTemp;
+            fondoDeSuma -> hijo = nodoTemp;
+            fondoDeSuma = nodoTemp
         }
     };
     if (operacion == '*'){
-        nodoTemp -> padreDePista = trackDeMultiplicacion;
-        if (trackDeSuma == NULL){
-            trackDeMultiplicacion = nodoTemp;
+        if (trackDeMultiplicacion == NULL){
+            frenteDeMultiplicacion = nodoTemp;
         }else{
-            trackDeMultiplicacion -> hijoDePista = nodoTemp;
+            fondoDeMultiplicacion -> hijo = nodoTemp;
+            fondoDeMultiplicacion = nodoTemp
         }
-
     };
     if (operacion == '/'){
-        nodoTemp -> padreDePista = trackDeDivision;
-        if (trackDeSuma == NULL){
-            trackDeDivision = nodoTemp;
+        if (trackDeDivision == NULL){
+            frenteDeDivision = nodoTemp;
         }else{
-            trackDeDivision -> hijoDePista = nodoTemp;
-        }        
+            fondoDeDivision -> hijo = nodoTemp;
+            fondoDeDivision = nodoTemp
+        }
     };
-    //if (operacion = "-"){printf("Error");};
-    nodoTemp -> padreDeOperacion = punteroDeOperacion;
+    /////////////////////////////////////////
+    nodoTemp -> padre = punteroDeOperacion;
     if (punteroDeOperacion == NULL){
         punteroDeOperacion = nodoTemp;
-    }else{
-        punteroDeOperacion -> hijoDeOperacion = nodoTemp;
-    }
-    
+    }    
 };
 
 struct nodo* nuevoNodo(float x){
@@ -143,3 +141,9 @@ struct nodo* nuevoNodo(float x){
     nuevoNodo -> hijoDeOperacion  = NULL;
     return nuevoNodo;
 }
+ 
+ /*void resolver(){
+ 	iterador = trackDeMultiplicacion;
+ 	while(iterador == NULL){
+ 	}
+ }
