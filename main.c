@@ -14,13 +14,13 @@ float valorAcumulado = 0;
 void automata          ();
 void inicial           ();
 void negativo          ();
-void construirDigito   (int caracter);
-void operar            (int caracter);
+void construirDigito   (int caracter, float* valorAcumulado);
+void operar            (int caracter, float *valorAcumulado,int *centinelaNegatividad );
 void rechazo           ();
 void aceptacion        ();
 void crearNodo         (int operacion,float valor);
 struct nodo* nuevoNodo (float x);
-void resolver();
+float resolver          ();
 
 int main(){
     automata();
@@ -36,47 +36,48 @@ void automata(){
 void inicial(){
     //Trancisiones
     caracter = getchar();
-    if(caracter=='-')                     {negativo();};
-    if((caracter>='1') && (caracter<='9')){construirDigito(caracter);return;}
+    if(caracter=='-')                     {negativo(&centinelaNegatividad);};
+    if((caracter>='1') && (caracter<='9')){construirDigito(caracter,&valorAcumulado);return;}
     ///
     rechazo();
 }
 
 //Estado 1
-void negativo(){
-    if (centinelaNegatividad == 1){centinelaNegatividad = 0;}
-    if (centinelaNegatividad == 0){centinelaNegatividad = 1;}
+void negativo(int *centinelaNegatividad){
+    if (*centinelaNegatividad == 1){*centinelaNegatividad = 0;}
+    if (*centinelaNegatividad == 0){*centinelaNegatividad = 1;}
     //Trancisiones
     caracter = getchar();
-    if((caracter>='1') && (caracter<='9')) {construirDigito(caracter);return;}
+    if((caracter>='1') && (caracter<='9')) {construirDigito(caracter,&valorAcumulado);return;}
     ///
     rechazo();
 };
 
 //Estado 2 - Estado de Aceptacion
-void construirDigito(int caracter){
-    valorAcumulado = valorAcumulado*10 + (caracter - '0');
+void construirDigito(int caracter, float *valorAcumulado){
+    *valorAcumulado = (caracter-'0') + *valorAcumulado*10;
     //Trancisiones
     caracter = getchar();
-    if((caracter>='0') && (caracter<='9')) {construirDigito(caracter);return;}
+    if((caracter>='0') && (caracter<='9')) {construirDigito(caracter,valorAcumulado);return;}
     if((caracter=='*') || (caracter=='/') 
-    || (caracter=='+') || (caracter=='-')) {operar(caracter);return;}
+    || (caracter=='+') || (caracter=='-')) {operar(caracter,valorAcumulado,&centinelaNegatividad);return;}
     ///
     if (caracter == '\n'){aceptacion();return;}
     rechazo();
 }
 
 //Estado 0' - Estado de reingreso
-void operar(int caracter){
-    crearNodo(operacion,(valorAcumulado*centinelaNegatividad));
+void operar(int caracter, float *valorAcumulado,int *centinelaNegatividad ){
+    crearNodo(operacion,((*valorAcumulado)*(*centinelaNegatividad)));
     operacion = caracter;
-    centinelaNegatividad = 0;
-    if (caracter == '-'){centinelaNegatividad = 1;operacion = '+';}
-    valorAcumulado = 0;
+    *centinelaNegatividad = 0;
+    if (caracter == '-'){*centinelaNegatividad = 1;operacion = '+';}
+    printf("v: %f\n", *valorAcumulado);
+    *valorAcumulado = 0;
     //Trancisiones
     caracter = getchar();
-    if(caracter=='-')                     {negativo();return;};
-    if((caracter>='1') && (caracter<='9')){construirDigito(caracter);return;}
+    if(caracter=='-')                     {negativo(centinelaNegatividad);return;};
+    if((caracter>='1') && (caracter<='9')){construirDigito(caracter,valorAcumulado);return;}
     ///
     rechazo();
 }
@@ -85,8 +86,8 @@ void rechazo(){
     printf("No se reconoce la cadena\n");
 }
 void aceptacion(){
-    resolver();
-    printf("Resultado: ...\n");
+    float r =resolver();
+    printf("Resultado: %f \n",r);
 }
 
 //Resolucion
@@ -139,10 +140,10 @@ struct nodo* nuevoNodo(float x){
     return nuevoNodo;
 }
  
-void resolver(){
+float resolver(){
     struct nodo* iterador = frenteDeMultiplicacion;
     struct nodo* temporal;
-    float  resultado;
+    float  resultado = 0;
     while(iterador != NULL){
         iterador -> padre -> valor = (iterador -> padre -> valor)*(iterador -> valor); 
         iterador -> hijo -> padre  =  iterador -> padre;
@@ -160,10 +161,10 @@ void resolver(){
     }
     iterador = frenteDeSuma;
     while(iterador != NULL){
-        // iterador -> padre -> valor = (iterador -> padre -> valor)+(iterador -> valor); 
-        // iterador -> hijo -> padre  =  iterador -> padre;
-        // temporal = iterador;
-        // iterador = iterador -> hijo;
-        // free(temporal);
+        resultado += iterador -> valor;
+        temporal = iterador;
+        iterador = iterador -> hijo;
+        free(temporal);
     }
+    return resultado;
 }
